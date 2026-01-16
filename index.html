@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAPIN - Pinjaman Dana Cepat & Aman</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Montserrat:wght@800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --dark: #0F172A;
+            --darker: #020617;
+            --light: #F8FAFC;
+            --gray: #94A3B8;
+            --gradient: linear-gradient(135deg, #2563EB 0%, #10B981 100%);
+            --gradient-secondary: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+            --shadow: 0 20px 40px rgba(37, 99, 235, 0.15);
+            --shadow-dark: 0 25px 50px rgba(0, 0, 0, 0.25);
+            --border-radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        /* Header */
+        header {
+            padding: 25px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+            text-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+            position: relative;
+        }
+
+        .logo::after {
+            content: 'RAMBANG';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            background: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: var(--transition);
+            position: relative;
+            padding: 8px 0;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 200px 0 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
+            z-index: -2;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 68px;
+            font-weight: 900;
+            margin-bottom: 25px;
+            line-height: 1.1;
+            background: linear-gradient(to right, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: fadeInUp 0.8s ease;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 22px;
+            margin-bottom: 45px;
+            color: var(--gray);
+            animation: fadeInUp 0.8s ease 0.2s backwards;
+            font-weight: 400;
+        }
+
+        .hero-highlight {
+            color: var(--accent);
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 50px;
+            background: var(--gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 18px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 30px 50px rgba(37, 99, 235, 0.3);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.7s;
+            z-index: -1;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        /* Features */
+        .features {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 52px;
+            text-align: center;
+            margin-bottom: 80px;
+            font-weight: 900;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 6px;
+            background: var(--gradient);
+            border-radius: 6px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 50px 35px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            transition: var(--transition);
+            border: 1px solid rgba(37, 99, 235, 0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-15px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(37, 99, 235, 0.3);
+            box-shadow: var(--shadow-dark);
+        }
+
+        .feature-icon {
+            font-size: 64px;
+            margin-bottom: 30px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 10px 15px rgba(37, 99, 235, 0.3));
+        }
+
+        .feature-card h3 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+            font-size: 17px;
+            line-height: 1.8;
+        }
+
+        /* Requirements */
+        .requirements {
+            padding: 120px 0;
+            background: rgba(15, 23, 42, 0.5);
+            position: relative;
+        }
+
+        .steps {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            text-align: center;
+            max-width: 250px;
+            position: relative;
+        }
+
+        .step-number {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 auto 25px;
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-number::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            background: var(--gradient);
+            border-radius: 50%;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(5px);
+        }
+
+        .step h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+
+        .step p {
+            color: var(--gray);
+            font-size: 16px;
+        }
+
+        /* Calculator */
+        .calculator {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        .calc-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 60px;
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            margin-bottom: 35px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--light);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid rgba(37, 99, 235, 0.3);
+            border-radius: 12px;
+            font-size: 17px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light);
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .result {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+            color: var(--light);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-top: 40px;
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+
+        .result h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--light);
+        }
+
+        .result .amount {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            color: var(--light);
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            margin: 10px 0;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .interest-info {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-top: 40px;
+            text-align: center;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .interest-info h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .interest-info p {
+            font-size: 18px;
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        /* Contact */
+        .contact {
+            padding: 100px 0;
+            background: rgba(15, 23, 42, 0.5);
+            position: relative;
+        }
+
+        .contact-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .whatsapp-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 22px 55px;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 20px;
+            transition: var(--transition);
+            box-shadow: 0 15px 35px rgba(37, 211, 102, 0.3);
+            margin-top: 30px;
+        }
+
+        .whatsapp-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 25px 50px rgba(37, 211, 102, 0.4);
+        }
+
+        .contact-info {
+            margin-top: 50px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0 40px;
+            background: var(--dark);
+            border-top: 1px solid rgba(37, 99, 235, 0.1);
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 42px;
+            font-weight: 900;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .footer-text {
+            color: var(--gray);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            font-size: 17px;
+        }
+
+        .owners {
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 30px;
+        }
+
+        .warning {
+            color: var(--danger);
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 56px;
+            }
+            
+            .section-title {
+                font-size: 44px;
+            }
+            
+            .nav-links {
+                gap: 25px;
+            }
+            
+            .result .amount {
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                padding: 180px 0 80px;
+            }
+            
+            .hero h1 {
+                font-size: 42px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .section-title {
+                font-size: 36px;
+            }
+            
+            .feature-card {
+                padding: 40px 25px;
+            }
+            
+            .calc-container {
+                padding: 40px 25px;
+            }
+            
+            .steps {
+                gap: 40px;
+            }
+            
+            .whatsapp-button {
+                padding: 20px 40px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .cta-button {
+                padding: 18px 35px;
+                font-size: 16px;
+            }
+            
+            .step {
+                max-width: 100%;
+            }
+            
+            .result .amount {
+                font-size: 40px;
+            }
+        }
+
+        /* Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            background: var(--gradient);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid var(--light);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">DAPIN</div>
+            <ul class="nav-links">
+                <li><a href="#features"><i class="fas fa-star"></i> Keunggulan</a></li>
+                <li><a href="#requirements"><i class="fas fa-clipboard-check"></i> Syarat</a></li>
+                <li><a href="#calculator"><i class="fas fa-calculator"></i> Kalkulator</a></li>
+                <li><a href="#contact"><i class="fas fa-phone-alt"></i> Kontak</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="floating">Pinjaman Dana Cepat & <span class="hero-highlight">Terpercaya</span></h1>
+                <p>Solusi finansial cepat untuk kebutuhan mendesak Anda. Dana cair dalam hitungan jam dengan proses mudah dan persyaratan sederhana.</p>
+                <a href="#calculator" class="cta-button">
+                    <i class="fas fa-bolt"></i> Ajukan Pinjaman
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Keunggulan DAPIN RAMBANG</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                    <h3>Proses Cepat</h3>
+                    <p>Dana cair dalam 1-3 jam setelah pengajuan disetujui. Tidak perlu menunggu berhari-hari.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fas fa-percentage"></i></div>
+                    <h3>Bunga Terjangkau</h3>
+                    <p>Sistem bunga per minggu yang transparan, tidak ada biaya tersembunyi atau administrasi tambahan.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"><i class="fab fa-whatsapp"></i></div>
+                    <h3>Via WhatsApp</h3>
+                    <p>Ajukan pinjaman langsung melalui WhatsApp tanpa perlu datang ke kantor atau mengisi form panjang.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="requirements" id="requirements">
+        <div class="container">
+            <h2 class="section-title">Syarat Pengajuan</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Follow Instagram</h3>
+                    <p>Follow akun Instagram DAPIN RAMBANG untuk verifikasi awal</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>KTP Valid</h3>
+                    <p>Foto KTP asli yang masih berlaku dan jelas terlihat</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Video Call</h3>
+                    <p>Verifikasi wajah melalui video call singkat untuk keamanan</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Kontak Keluarga</h3>
+                    <p>Nomor telepon orang tua atau keluarga yang bisa dihubungi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="calculator" id="calculator">
+        <div class="container">
+            <h2 class="section-title">Hitung Pinjaman Anda</h2>
+            <div class="calc-container">
+                <div class="input-group">
+                    <label for="amount">Jumlah Pinjaman (Rp)</label>
+                    <input type="number" id="amount" value="1000000" min="100000" max="5000000" step="100000" placeholder="Masukkan jumlah pinjaman">
+                </div>
+                <div class="input-group">
+                    <label for="durasi">Durasi Pinjaman (Hari)</label>
+                    <select id="durasi">
+                        <option value="7">7 Hari</option>
+                        <option value="14">14 Hari (2 Minggu)</option>
+                        <option value="21">21 Hari (3 Minggu)</option>
+                        <option value="30">30 Hari (4 Minggu)</option>
+                    </select>
+                </div>
+                
+                <div class="result">
+                    <h3>Bunga yang Dibayar</h3>
+                    <div class="amount" id="bunga">Rp 50.000</div>
+                    <h3>Total Pengembalian</h3>
+                    <div class="amount" id="total">Rp 1.050.000</div>
+                </div>
+                
+                <div class="interest-info">
+                    <h3><i class="fas fa-info-circle"></i> Informasi Bunga</h3>
+                    <p>Bunga per 7 hari: <span class="highlight">Rp 50.000</span></p>
+                    <p>Contoh: Pinjaman 14 hari = 2 minggu × Rp 50.000 = <span class="highlight">Rp 100.000</span> bunga</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="container">
+            <h2 class="section-title">Ajukan Pinjaman</h2>
+            <div class="contact-container">
+                <p>Klik tombol di bawah untuk mengajukan pinjaman melalui WhatsApp. Pastikan Anda sudah memenuhi semua persyaratan.</p>
+                
+                <a href="#" class="whatsapp-button" id="whatsappBtn">
+                    <i class="fab fa-whatsapp"></i> Ajukan via WhatsApp
+                </a>
+                
+                <div class="contact-info">
+                    <h3><i class="fas fa-clock"></i> Jam Operasional</h3>
+                    <p>Senin - Minggu: 08:00 - 22:00 WIB</p>
+                    <p>Respon cepat dalam 15 menit</p>
+                    
+                    <div class="warning">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        Pinjaman hanya untuk keperluan mendesak. Pastikan kemampuan membayar sebelum mengajukan.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">DAPIN RAMBANG</div>
+            <p class="footer-text">Layanan pinjaman dana cepat dengan proses mudah dan transparan. Melayani dengan profesional dan terpercaya.</p>
+            
+            <div class="owners">
+                <p><i class="fas fa-user-tie"></i> Owner: ERMA & FETRUS</p>
+            </div>
+            
+            <div class="warning">
+                <i class="fas fa-shield-alt"></i> 
+                Data pribadi Anda kami jamin keamanannya. Tidak disebarkan ke pihak manapun.
+            </div>
+            
+            <p style="margin-top: 40px; color: var(--gray); font-size: 14px;">
+                &copy; 2024 DAPIN RAMBANG. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const amountInput = document.getElementById('amount');
+        const durasiSelect = document.getElementById('durasi');
+        const bungaDisplay = document.getElementById('bunga');
+        const totalDisplay = document.getElementById('total');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+
+        // Format Rupiah
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+
+        // Calculate Interest Function
+        function calculateInterest() {
+            const amount = parseInt(amountInput.value);
+            const durasi = parseInt(durasiSelect.value);
+            
+            // Calculate weeks (7 days = 1 week)
+            const minggu = Math.ceil(durasi / 7);
+            const bunga = minggu * 50000;
+            const total = amount + bunga;
+            
+            // Update displays
+            bungaDisplay.textContent = formatRupiah(bunga);
+            totalDisplay.textContent = formatRupiah(total);
+            
+            return { amount, durasi, minggu, bunga, total };
+        }
+
+        // WhatsApp Submission Function
+        function submitViaWhatsApp() {
+            const { amount, durasi, minggu, bunga, total } = calculateInterest();
+            
+            const message = `Halo DAPIN RAMBANG, saya ingin mengajukan pinjaman:
+
+📋 **DATA PENGAJUAN:**
+• Jumlah Pinjaman: Rp ${amount.toLocaleString('id-ID')}
+• Durasi: ${durasi} hari (${minggu} minggu)
+• Bunga: Rp ${bunga.toLocaleString('id-ID')}
+• Total Bayar: Rp ${total.toLocaleString('id-ID')}
+
+✅ **SYARAT YANG SUDAH SIAP:**
+✓ Follow Instagram DAPIN RAMBANG
+✓ KTP asli dan jelas
+✓ Siap Video Call verifikasi
+✓ Kontak keluarga tersedia
+
+Mohon info langkah selanjutnya. Terima kasih.`;
+
+            // GANTI NOMOR INI DENGAN NOMOR WA OWNER
+            const waNumber = '6283800552220'; 
+            const waLink = `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+            window.open(waLink, '_blank');
+        }
+
+        // Event Listeners
+        amountInput.addEventListener('input', calculateInterest);
+        durasiSelect.addEventListener('change', calculateInterest);
+        whatsappBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            submitViaWhatsApp();
+        });
+
+        // Input Validation
+        amountInput.addEventListener('change', function() {
+            if (this.value < 100000) this.value = 100000;
+            if (this.value > 5000000) this.value = 5000000;
+            calculateInterest();
+        });
+
+        // Initialize calculation
+        calculateInterest();
+
+        // Particles Background
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 50, density: { enable: true, value_area: 800 } },
+                color: { value: "#2563EB" },
+                shape: { type: "circle" },
+                opacity: { value: 0.3, random: true },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#2563EB",
+                    opacity: 0.1,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: true,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" }
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+</html>
