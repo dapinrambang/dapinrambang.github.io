@@ -1,5 +1,5 @@
-// DAPIN RAMBANG - Enhanced Modern Fintech JS
-// Optimized for all devices with smooth animations + NEW FEATURES
+// DAPIN RAMBANG - Modern Fintech JS
+// Optimized for all devices with enhanced animations
 
 document.addEventListener('DOMContentLoaded', function() {
     // ===== MOBILE MENU TOGGLE =====
@@ -18,8 +18,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', () => {
             navLinks.classList.remove('active');
-            mobileMenuBtn.querySelector('i').classList.add('fa-bars');
-            mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+            if (mobileMenuBtn) {
+                mobileMenuBtn.querySelector('i').classList.add('fa-bars');
+                mobileMenuBtn.querySelector('i').classList.remove('fa-times');
+            }
         });
     });
     
@@ -69,12 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update form displays
         document.getElementById('formJumlah').textContent = formattedAmount;
         document.getElementById('formDurasi').textContent = days + ' Hari';
-        
-        // Save to localStorage for persistence
-        saveCalculatorState(amount, days);
-        
-        // Update comparison table
-        updateComparisonTable();
     };
     
     // Slider and input sync
@@ -87,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.addEventListener('input', function() {
             let value = parseInt(this.value);
             
+            // Validate range
             if (value < parseInt(this.min)) value = parseInt(this.min);
             if (value > parseInt(this.max)) value = parseInt(this.max);
             
@@ -98,6 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         amountInput.addEventListener('change', function() {
             let value = parseInt(this.value);
             
+            // Round to nearest 100k
             value = Math.round(value / 100000) * 100000;
             
             if (value < parseInt(this.min)) value = parseInt(this.min);
@@ -118,31 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ===== CALCULATOR STATE PERSISTENCE =====
-    const saveCalculatorState = (amount, days) => {
-        const state = { amount, days, timestamp: Date.now() };
-        localStorage.setItem('dapinCalculatorState', JSON.stringify(state));
-    };
-    
-    const loadCalculatorState = () => {
-        const saved = localStorage.getItem('dapinCalculatorState');
-        if (saved) {
-            const state = JSON.parse(saved);
-            // Only load if less than 24 hours old
-            if (Date.now() - state.timestamp < 24 * 60 * 60 * 1000) {
-                amountInput.value = state.amount;
-                amountSlider.value = state.amount;
-                durationBtns.forEach(btn => {
-                    btn.classList.remove('active');
-                    if (parseInt(btn.dataset.days) === state.days) {
-                        btn.classList.add('active');
-                    }
-                });
-                updateCalculator();
-            }
-        }
-    };
-    
     // ===== MODAL FUNCTIONALITY =====
     const openFormBtn = document.getElementById('openFormBtn');
     const formModal = document.getElementById('formModal');
@@ -156,7 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             formModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            trackEvent('modal_opened', 'form_pengajuan');
         });
     }
     
@@ -169,48 +141,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (closeModal) closeModal.addEventListener('click', closeModalFunc);
     if (cancelBtn) cancelBtn.addEventListener('click', closeModalFunc);
     
-    formModal.addEventListener('click', function(e) {
-        if (e.target === this) closeModalFunc();
-    });
-    
-    // ===== FORM AUTO-SAVE (Draft) =====
-    const formFields = ['nama', 'whatsapp', 'email', 'pekerjaan', 'kota'];
-    
-    const saveFormDraft = () => {
-        const draft = {};
-        formFields.forEach(field => {
-            const element = document.getElementById(field);
-            if (element) draft[field] = element.value;
+    // Close modal on outside click
+    if (formModal) {
+        formModal.addEventListener('click', function(e) {
+            if (e.target === this) closeModalFunc();
         });
-        localStorage.setItem('dapinFormDraft', JSON.stringify(draft));
-    };
-    
-    const loadFormDraft = () => {
-        const saved = localStorage.getItem('dapinFormDraft');
-        if (saved) {
-            const draft = JSON.parse(saved);
-            formFields.forEach(field => {
-                const element = document.getElementById(field);
-                if (element && draft[field]) {
-                    element.value = draft[field];
-                }
-            });
-        }
-    };
-    
-    // Auto-save on input
-    formFields.forEach(field => {
-        const element = document.getElementById(field);
-        if (element) {
-            element.addEventListener('input', debounce(saveFormDraft, 500));
-        }
-    });
+    }
     
     // ===== FORM SUBMISSION =====
     if (pengajuanForm) {
         pengajuanForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // Get form values
             const nama = document.getElementById('nama').value;
             const whatsapp = document.getElementById('whatsapp').value;
             const email = document.getElementById('email').value;
@@ -221,18 +164,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Validate WhatsApp number
             const whatsappRegex = /^[0-9]{10,13}$/;
-            if (!whatsappRegex.test(whatsapp.replace(/[^0-9]/g, ''))) {
+            const cleanWhatsapp = whatsapp.replace(/[^0-9]/g, '');
+            
+            if (!whatsappRegex.test(cleanWhatsapp)) {
                 showNotification('Nomor WhatsApp tidak valid! Pastikan format 628xxxxxxx', 'error');
                 return;
             }
             
-            // Validate email
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showNotification('Email tidak valid!', 'error');
-                return;
-            }
-            
+            // Prepare WhatsApp message
             const message = `Halo DAPIN RAMBANG! Saya mau mengajukan pinjaman:
 
 👤 Nama: ${nama}
@@ -246,119 +185,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
 Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
 
+            // Encode message for URL
             const encodedMessage = encodeURIComponent(message);
+            
+            // Create WhatsApp URL
             const whatsappNumber = '6283800552220';
             const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
             
+            // Show loading state
             const submitBtn = document.getElementById('submitFormBtn');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
             submitBtn.disabled = true;
             
+            // Simulate API call delay
             setTimeout(() => {
+                // Open WhatsApp
                 window.open(whatsappUrl, '_blank');
                 
+                // Reset form and close modal
                 pengajuanForm.reset();
-                localStorage.removeItem('dapinFormDraft');
                 closeModalFunc();
                 
+                // Reset button
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
                 
+                // Show success message
                 showNotification('Pengajuan berhasil! Silakan lanjutkan di WhatsApp.', 'success');
-                
-                trackEvent('form_submitted', 'pengajuan_pinjaman', {
-                    amount: jumlah,
-                    duration: durasi
-                });
                 
             }, 1000);
         });
     }
     
-    // ===== QUICK AMOUNT PRESETS =====
-    const createQuickPresets = () => {
-        const presetContainer = document.createElement('div');
-        presetContainer.className = 'quick-presets';
-        presetContainer.innerHTML = `
-            <div class="preset-label">Quick Select:</div>
-            <button class="preset-btn" data-amount="500000">500K</button>
-            <button class="preset-btn" data-amount="1000000">1JT</button>
-            <button class="preset-btn" data-amount="2000000">2JT</button>
-            <button class="preset-btn" data-amount="5000000">5JT</button>
-        `;
+    // ===== ENHANCED SCROLL ANIMATIONS =====
+    const enhancedScrollAnimations = () => {
+        const elements = document.querySelectorAll('.feature-card, .article-card, .owner-card, .calc-wrapper');
         
-        const inputWrapper = document.querySelector('.input-wrapper');
-        if (inputWrapper) {
-            inputWrapper.parentNode.insertBefore(presetContainer, inputWrapper.nextSibling);
-            
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const amount = parseInt(this.dataset.amount);
-                    amountInput.value = amount;
-                    amountSlider.value = amount;
-                    updateCalculator();
-                    
-                    this.classList.add('active');
-                    setTimeout(() => this.classList.remove('active'), 300);
-                });
-            });
-        }
-    };
-    
-    // ===== COMPARISON TABLE =====
-    const createComparisonTable = () => {
-        const comparisonSection = document.createElement('div');
-        comparisonSection.className = 'comparison-table-wrapper scroll-fade';
-        comparisonSection.innerHTML = `
-            <h3 style="text-align: center; margin-bottom: 1.5rem;">Bandingkan Durasi Pinjaman</h3>
-            <div class="comparison-table">
-                <div class="comparison-row header">
-                    <div>Durasi</div>
-                    <div>Bunga</div>
-                    <div>Total Bayar</div>
-                    <div>Per Hari</div>
-                </div>
-            </div>
-        `;
+        elements.forEach((element, index) => {
+            element.classList.add('scroll-fade-up');
+            element.style.setProperty('--animation-delay', `${index * 0.1}s`);
+        });
         
-        const calcBox = document.querySelector('.calc-box');
-        if (calcBox) {
-            calcBox.appendChild(comparisonSection);
-            updateComparisonTable();
-        }
-    };
-    
-    const updateComparisonTable = () => {
-        const amount = parseInt(amountInput.value);
-        const durations = [7, 14, 21, 30];
-        const table = document.querySelector('.comparison-table');
-        
-        if (!table) return;
-        
-        const rows = table.querySelectorAll('.comparison-row:not(.header)');
-        rows.forEach(row => row.remove());
-        
-        durations.forEach(days => {
-            const interest = calculateInterest(amount, days);
-            const total = amount + interest;
-            const perDay = Math.round(total / days);
-            
-            const row = document.createElement('div');
-            row.className = 'comparison-row';
-            row.innerHTML = `
-                <div>${days} Hari</div>
-                <div>${formatCurrency(interest)}</div>
-                <div><strong>${formatCurrency(total)}</strong></div>
-                <div>${formatCurrency(perDay)}/hari</div>
-            `;
-            table.appendChild(row);
+        // Add staggered animation classes to section headers
+        const headers = document.querySelectorAll('.section-header');
+        headers.forEach((header, index) => {
+            header.classList.add('scroll-fade-up');
+            header.style.setProperty('--animation-delay', `${index * 0.2}s`);
         });
     };
     
-    // ===== SCROLL ANIMATIONS =====
-    const scrollElements = document.querySelectorAll('.scroll-fade');
+    // Apply enhanced animations
+    enhancedScrollAnimations();
+    
+    // ===== SCROLL ANIMATIONS HANDLER =====
+    const scrollElements = document.querySelectorAll('.scroll-fade-up');
+    
+    // Performance optimized scroll handler
     let ticking = false;
     
     const checkScroll = () => {
@@ -370,6 +253,7 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
                 element.classList.add('visible');
             }
         });
+        
         ticking = false;
     };
     
@@ -380,13 +264,46 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
         }
     };
     
-    checkScroll();
+    // Initial check on load
+    setTimeout(checkScroll, 100);
+    
+    // Listen to scroll events with throttle
     window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // ===== RIPPLE EFFECT FOR BUTTONS =====
+    // Add ripple effect to buttons
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            // Get click position relative to button
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Create ripple element
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            
+            // Position the ripple at click location
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            
+            // Add ripple to button
+            this.appendChild(ripple);
+            
+            // Remove ripple after animation completes
+            setTimeout(() => {
+                if (ripple.parentNode === this) {
+                    this.removeChild(ripple);
+                }
+            }, 600);
+        });
+    });
     
     // ===== SMOOTH SCROLL FOR ANCHOR LINKS =====
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
+            
             if (href === '#') return;
             
             e.preventDefault();
@@ -394,15 +311,15 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
             const targetElement = document.querySelector(href);
             if (!targetElement) return;
             
+            // Calculate header offset
             const headerHeight = document.querySelector('#header').offsetHeight;
             const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - headerHeight;
             
+            // Smooth scroll
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
             });
-            
-            history.pushState(null, null, href);
         });
     });
     
@@ -410,8 +327,10 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
     const whatsappInput = document.getElementById('whatsapp');
     if (whatsappInput) {
         whatsappInput.addEventListener('input', function() {
+            // Remove non-numeric characters
             this.value = this.value.replace(/[^0-9]/g, '');
             
+            // Auto-add 62 prefix if starts with 0
             if (this.value.startsWith('0')) {
                 this.value = '62' + this.value.substring(1);
             }
@@ -427,25 +346,29 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
             const isPercentage = originalText.includes('%');
             const value = parseInt(originalText.replace(/[^0-9]/g, ''));
             
+            // Only animate if it's a number
             if (!isNaN(value)) {
                 let start = 0;
                 const end = value;
                 const duration = 1500;
-                const stepTime = Math.abs(Math.floor(duration / end));
+                const increment = Math.ceil(end / 50);
                 
                 const timer = setInterval(() => {
-                    start += 1;
-                    stat.textContent = isPercentage ? `${start}%` : start;
+                    start += increment;
+                    if (start > end) start = end;
+                    
+                    stat.textContent = isPercentage ? `${start}%` : start.toString();
                     
                     if (start >= end) {
                         stat.textContent = originalText;
                         clearInterval(timer);
                     }
-                }, stepTime);
+                }, duration / 50);
             }
         });
     };
     
+    // Trigger number animation when stats are visible
     const statsObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -462,14 +385,17 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
     
     // ===== NOTIFICATION SYSTEM =====
     function showNotification(message, type = 'info') {
+        // Remove existing notification
         const existingNotification = document.querySelector('.notification');
         if (existingNotification) {
             existingNotification.remove();
         }
         
+        // Create notification element
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         
+        // Set icon based on type
         let icon = 'info-circle';
         if (type === 'success') icon = 'check-circle';
         if (type === 'error') icon = 'exclamation-circle';
@@ -479,12 +405,15 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
             <span>${message}</span>
         `;
         
+        // Add to body
         document.body.appendChild(notification);
         
+        // Animate in
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
         
+        // Remove after 4 seconds
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => {
@@ -495,194 +424,179 @@ Saya sudah membaca dan setuju dengan syarat dan ketentuan.`;
         }, 4000);
     }
     
-    // ===== ANALYTICS TRACKING =====
-    const trackEvent = (eventName, category, data = {}) => {
-        const event = {
-            name: eventName,
-            category: category,
-            data: data,
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent
-        };
-        
-        const events = JSON.parse(localStorage.getItem('dapinEvents') || '[]');
-        events.push(event);
-        if (events.length > 50) events.shift();
-        localStorage.setItem('dapinEvents', JSON.stringify(events));
-        
-        console.log('Event tracked:', event);
-    };
-    
-    // ===== KEYBOARD SHORTCUTS =====
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-            e.preventDefault();
-            document.getElementById('kalkulator').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        if (e.key === 'Escape' && formModal.style.display === 'flex') {
-            closeModalFunc();
-        }
-    });
-    
     // ===== TOUCH OPTIMIZATIONS =====
+    // Add touch-specific optimizations
     document.addEventListener('touchstart', function() {}, { passive: true });
     
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(event) {
-        const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-            event.preventDefault();
-        }
-        lastTouchEnd = now;
-    }, { passive: false });
-    
-    // ===== MOBILE DEVICE DETECTION & OPTIMIZATION =====
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isLowEndDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
-    
-    // Disable heavy animations on low-end devices
-    if (isMobile || isLowEndDevice) {
-        document.documentElement.style.setProperty('--transition', 'all 0.2s ease');
-        
-        // Reduce scroll fade elements for better performance
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (reducedMotion || isLowEndDevice) {
-            scrollElements.forEach(el => el.classList.add('visible')); // Show all immediately
-        }
-    }
-    
-    // ===== LAZY LOAD IMAGES =====
-    const lazyLoadImages = () => {
-        const images = document.querySelectorAll('img[data-src]');
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    imageObserver.unobserve(img);
-                }
-            });
+    // Touch feedback for mobile buttons
+    document.querySelectorAll('.btn, .duration-btn').forEach(btn => {
+        btn.addEventListener('touchstart', function() {
+            this.classList.add('touch-active');
         });
         
-        images.forEach(img => imageObserver.observe(img));
-    };
-    
-    // ===== VIEWPORT HEIGHT FIX FOR MOBILE =====
-    const setVH = () => {
-        const vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-    
-    setVH();
-    window.addEventListener('resize', debounce(setVH, 100));
-    
-    // ===== SMOOTH SCROLL POLYFILL FOR OLDER DEVICES =====
-    if (!('scrollBehavior' in document.documentElement.style)) {
-        const smoothScrollPolyfill = (target, duration = 300) => {
-            const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
-            const startPosition = window.pageYOffset;
-            const distance = targetPosition - startPosition;
-            let startTime = null;
-            
-            const animation = (currentTime) => {
-                if (startTime === null) startTime = currentTime;
-                const timeElapsed = currentTime - startTime;
-                const run = ease(timeElapsed, startPosition, distance, duration);
-                window.scrollTo(0, run);
-                if (timeElapsed < duration) requestAnimationFrame(animation);
-            };
-            
-            const ease = (t, b, c, d) => {
-                t /= d / 2;
-                if (t < 1) return c / 2 * t * t + b;
-                t--;
-                return -c / 2 * (t * (t - 2) - 1) + b;
-            };
-            
-            requestAnimationFrame(animation);
-        };
-    }
-    
-    // ===== UTILITY: DEBOUNCE =====
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-    
-    // ===== UTILITY: THROTTLE FOR SCROLL =====
-    function throttle(func, limit) {
-        let inThrottle;
-        return function() {
-            const args = arguments;
-            const context = this;
-            if (!inThrottle) {
-                func.apply(context, args);
-                inThrottle = true;
-                setTimeout(() => inThrottle = false, limit);
-            }
-        };
-    }
-    
-    // ===== INITIALIZE =====
-    loadCalculatorState();
-    loadFormDraft();
-    createQuickPresets();
-    createComparisonTable();
-    updateCalculator();
-    lazyLoadImages();
-    
-    trackEvent('page_view', 'landing_page', {
-        isMobile: isMobile,
-        screenWidth: window.innerWidth,
-        screenHeight: window.innerHeight
+        btn.addEventListener('touchend', function() {
+            this.classList.remove('touch-active');
+        });
     });
     
-    // ===== PERFORMANCE HINTS =====
-    if ('connection' in navigator) {
-        const connection = navigator.connection;
-        if (connection.effectiveType === '2g' || connection.saveData) {
-            // Disable animations on slow connections
-            document.documentElement.style.setProperty('--transition', 'none');
-            console.log('Slow connection detected - animations disabled');
-        }
-    }
+    // ===== INITIALIZE CALCULATOR =====
+    updateCalculator();
+    
+    // ===== ADD DYNAMIC STYLES FOR ANIMATIONS =====
+    addDynamicStyles();
 });
 
-// ===== PERFORMANCE MONITORING =====
-window.addEventListener('load', function() {
-    setTimeout(() => {
-        if ('performance' in window) {
-            const perfData = performance.getEntriesByType('navigation')[0];
-            if (perfData) {
-                console.log('Page loaded in:', perfData.loadEventEnd - perfData.startTime, 'ms');
+// ===== DYNAMIC STYLES FUNCTION =====
+function addDynamicStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        /* Ripple Effect Styles */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            width: 20px;
+            height: 20px;
+            margin-left: -10px;
+            margin-top: -10px;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(20);
+                opacity: 0;
             }
         }
-    }, 0);
+        
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid #4361EE;
+            max-width: 350px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-success {
+            border-left-color: #4ADE80;
+        }
+        
+        .notification-success i {
+            color: #4ADE80;
+        }
+        
+        .notification-error {
+            border-left-color: #EF4444;
+        }
+        
+        .notification-error i {
+            color: #EF4444;
+        }
+        
+        .notification i {
+            font-size: 1.2rem;
+            color: #4361EE;
+        }
+        
+        /* Scroll Fade Animations */
+        .scroll-fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition-delay: var(--animation-delay, 0s);
+        }
+        
+        .scroll-fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Touch Feedback */
+        .touch-active {
+            transform: scale(0.95) !important;
+            transition: transform 0.1s !important;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .notification {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+            
+            .ripple {
+                animation-duration: 0.4s;
+            }
+        }
+        
+        /* Reduced Motion Support */
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-fade-up,
+            .ripple,
+            .notification {
+                transition: none !important;
+                animation: none !important;
+            }
+            
+            .scroll-fade-up {
+                opacity: 1;
+                transform: none;
+            }
+        }
+        
+        /* Performance Optimizations */
+        .will-change {
+            will-change: transform, opacity;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// ===== LOADING ANIMATIONS =====
+// Add loading class to body for initial animations
+document.body.classList.add('loading');
+
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        document.body.classList.remove('loading');
+        document.body.classList.add('loaded');
+    }, 100);
 });
 
-// ===== ERROR HANDLING =====
-window.addEventListener('error', function(e) {
-    console.error('JavaScript Error:', e.error);
-});
-
-// ===== RESIZE OPTIMIZATION =====
+// ===== RESIZE HANDLER =====
 let resizeTimeout;
 window.addEventListener('resize', function() {
     clearTimeout(resizeTimeout);
     resizeTimeout = setTimeout(function() {
+        // Close mobile menu on resize to desktop
         const mobileMenu = document.querySelector('.nav-links');
-        if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+        const mobileBtn = document.getElementById('mobileMenu');
+        
+        if (window.innerWidth > 768 && mobileMenu && mobileMenu.classList.contains('active')) {
             mobileMenu.classList.remove('active');
-            const mobileBtn = document.getElementById('mobileMenu');
             if (mobileBtn) {
                 mobileBtn.querySelector('i').classList.add('fa-bars');
                 mobileBtn.querySelector('i').classList.remove('fa-times');
@@ -690,3 +604,18 @@ window.addEventListener('resize', function() {
         }
     }, 250);
 });
+
+// ===== ERROR HANDLING =====
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+});
+
+// ===== PERFORMANCE MONITORING =====
+if ('performance' in window) {
+    window.addEventListener('load', function() {
+        const perfData = performance.getEntriesByType('navigation')[0];
+        if (perfData) {
+            console.log('Page load time:', Math.round(perfData.loadEventEnd - perfData.startTime), 'ms');
+        }
+    });
+}
